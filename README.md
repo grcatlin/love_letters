@@ -7,3 +7,6 @@ The concept is based off of Theodore's job in the movie "Her".
 
 ## Data
 Data were obtained from the [2020 Decennial Census P.L. 94-171 Redistricting Data](https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html) and are in the cens_files folder. The zipped originals (name lookup tables, import scripts, data) are in the files_used folder.
+
+## Structure
+All R scripts are in the R folder, with names corresponding to the order they were used in. All R objects (cleaned data, etc.), are in the R_Objects folder.
