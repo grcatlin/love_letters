@@ -1,0 +1,2 @@
+STATEFP|DISTRICT|NAME|NAMELSAD
+56|00960|Fremont County School District 38|Fremont County School District 38

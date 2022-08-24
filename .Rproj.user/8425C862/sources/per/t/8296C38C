@@ -1,0 +1,26 @@
+{
+    "id": "8296C38C",
+    "path": "~/Documents/GitHub/love_letters/R/casper_setup.R",
+    "project_path": "R/casper_setup.R",
+    "type": "r_source",
+    "hash": "991563535",
+    "contents": "",
+    "dirty": false,
+    "created": 1661198603323.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "67,0",
+        "scrollLine": "38"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1661350561,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1661350561652,
+    "read_only": false,
+    "read_only_alternatives": []
+}
