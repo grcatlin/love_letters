@@ -58,9 +58,9 @@ cens = cbind(cens, monthly[, mean(Response), by =  ID]$V1)
 setnames(cens, "V2", "Avg_Call")
 
 leaflet(cens) %>% 
-  addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+  addProviderTiles(providers$CartoDB) %>% 
   addCircleMarkers(~Avg_Call, lng = ~Lon, lat = ~Lat,
-                   stroke = F, fillOpacity = .4,
+                   stroke = F, fillOpacity = .7,
                    color = "#d0587e")
 
 # save
