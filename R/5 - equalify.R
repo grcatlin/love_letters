@@ -2,23 +2,30 @@ library(data.table)
 library(stringr)
 library(leaflet)
 library(future.apply)
+library(pushoverr)
 
 plan(multisession)
+set_pushover_user(user = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+set_pushover_app(token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+
+# pushoverr test
+pushover("Testing!")
 
 # imports
 cens = readRDS("R_Objects/cens_cleaned.rds")
-euc_dist = readRDS("R_Objects/euc_dist.rds")
 time_dist = readRDS("R_Objects/time_dist.rds")
 time_mat = readRDS("R_Objects/time_mat.rds")
 cluster_dat = readRDS("R_Objects/cluster_dat.rds")
 
+# debugging
+# census_data = cens
+# distance_matrix = time_dist
+# n_vans = 3
+# threshold = .9
+# iters = 50
+# subiters = 100
 
-census_data = cens
-distance_matrix = time_dist
-n_vans = 4
-threshold = .9; iters = 100; subiters = 250
-
-# algorithm
+# equalify algorithm
 equalify = function(census_data, distance_matrix, n_vans, time_mat,
                     threshold = .9, iters = 1000, subiters = 1000) {
   # copy data
@@ -201,19 +208,17 @@ equal_cluster = future_Map(equalify,
                                            time_mat = time_mat,
                                            subiters = 250,
                                            iters = 250,
-                                           threshold = .8),
+                                           threshold = .9),
                            future.seed = T)
 equal_cluster = rbindlist(equal_cluster)
 equal_cluster[, Method := "Equal"]
 
 # optional - push notification when finished
-library(pushoverr)
-set_pushover_user(user = "uuujevzyhgyqt8f61us7tj3sw12ss5")
-set_pushover_app(token = "a65uaq1dormqe8q5tjgeuoyvb656tb")
 pushover("Equalify has finished running!")
 
-# all clustering solutions
+# bind clustering solutions and save
 cluster_dat = rbind(cluster_dat, equal_cluster)
+saveRDS(cluster_dat, "R_Objects/cluster_dat.rds")
 
 # investigate
 cluster_map = function(cluster_data, n_vans, method) {
@@ -294,6 +299,5 @@ cluster_map = function(cluster_data, n_vans, method) {
                      labelOptions = labelOptions(textsize = "13px"))
 }
 
-cluster_map(cluster_dat, n_vans = 3, method = "Euc")
-cluster_map(cluster_dat, n_vans = 3, method = "Time")
-cluster_map(cluster_dat, n_vans = 3, method = "Equal")
+cluster_map(cluster_dat, n_vans = 2, method = "Time")
+cluster_map(cluster_dat, n_vans = 2, method = "Equal")
