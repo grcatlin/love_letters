@@ -9,6 +9,7 @@ The concept is based off of Theodore's job in the movie "Her".
 I've written blog posts discussing this project, take a look if you're interested or want some background!
 - [Part 1: Data Cleaning & Setup](https://world.hey.com/catlin/spatial-clustering-love-letters-part-1-data-cleaning-setup-52b10d07)
 - [Part 2: OSRM & Weighted Clustering](https://world.hey.com/catlin/spatial-clustering-love-letters-part-2-osrm-weighted-clustering-f702106b) (Look at this if you need help setting up OSRM)
+- [Part 3: Equalify](https://world.hey.com/catlin/spatial-clustering-love-letters-part-3-equalify-496ccf5f)
 
 ## Data
 Data were obtained from the [2020 Decennial Census P.L. 94-171 Redistricting Data](https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html) and are in the cens_files folder. The zipped originals (name lookup tables, import scripts, data) are in the files_used folder.
