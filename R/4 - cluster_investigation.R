@@ -89,8 +89,9 @@ time_cluster = future_Map(cluster,
 time_cluster = rbindlist(time_cluster)
 time_cluster[, Method := "Time"]
 
-# combine for full data
+# combine for full data and save
 cluster_dat = rbind(time_cluster, euc_cluster)
+saveRDS(cluster_dat, "R_Objects/cluster_dat.rds")
 
 # generalized leaflet function
 cluster_map = function(cluster_data, n_vans, method) {
@@ -171,8 +172,8 @@ cluster_map = function(cluster_data, n_vans, method) {
                      labelOptions = labelOptions(textsize = "13px"))
 }
 
-cluster_map(cluster_dat, n_vans = 4, method = "Euc")
-cluster_map(cluster_dat, n_vans = 4, method = "Time")
+cluster_map(cluster_dat, n_vans = 3, method = "Euc")
+cluster_map(cluster_dat, n_vans = 3, method = "Time")
 
 cluster_map(cluster_dat, n_vans = 6, method = "Euc")
 cluster_map(cluster_dat, n_vans = 6, method = "Time")
