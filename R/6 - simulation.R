@@ -1,9 +1,9 @@
 library(data.table)
-library(lubridate)
 library(stringr)
 library(future.apply)
-library(simmer)
 library(pushoverr)
+library(lubridate)
+library(simmer)
 
 plan(multisession)
 set_pushover_user(user = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
@@ -19,7 +19,6 @@ monthly = readRDS("R_Objects/monthly.rds")
 # n_vans = 3
 # method = "Equal"
 # cluster_solutions = cluster_dat
-# time_mat = readRDS("R_Objects/time_mat.rds")
 
 # function
 letter_sim = function(monthly_data, cluster_solutions, n_vans, 
@@ -29,7 +28,6 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
   clust_assign = cluster_solutions[N_Clust == n_vans & Method == method]
   placements = clust_assign[Medoid == 1]
   clust_assign = clust_assign[, .(ID, Clust)]
-
 
   # subset travel times for placements
   placement_ids = c(sort(placements$ID), "ID")
@@ -76,9 +74,9 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
   simmer_data = time_mat[simmer_data]
   setkey(simmer_data, simmer_time) # orders by time for simmer
   
-  # date key overwrite (so sim can extend past generate year)
+  # date key overwrite (so sim can extend past generated year)
   datekey = data.table(Date = seq(as.Date("2023-01-01"), 
-                                  as.Date("2024-12-31"), 
+                                  as.Date("2025-12-31"), 
                                   by = "1 day"))
   datekey[,Elapsed_Day := 1:.N]
   setkey(datekey, Date)
@@ -90,7 +88,7 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
     set_attribute("letter_request", 
                   values = function() {simmer::now(sim)}) %>%
     
-    # are our staff working? work 9a-5p Mon-Sat
+    # are our staff working? work 9a-5p Mon-Fri
     timeout(function() {
       time = simmer::now(sim)
       base_day = as.numeric(gsub("\\..*","",simmer::now(sim)))
@@ -103,6 +101,11 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
           timeout = 0
       }
       
+      # update
+      time = time + timeout
+      base_day = as.numeric(gsub("\\..*","",time))
+      time_request = time - base_day
+      
       # if after 5p - kick to 9a next day
       if (time_request > 17/24) {
         timeout = (1 - time_request) + 9/24
@@ -110,24 +113,27 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
           timeout = 0
       }
       
-      # do our writers have enough time (i.e., request at 4:59p)?
-      # letters take between 20 minutes and 2 hours to write,
-      # skip to next day if less than an hour remains
+      # update
       time = time + timeout
-      base_day = as.numeric(gsub("\\..*","",simmer::now(sim)))
+      base_day = as.numeric(gsub("\\..*","",time))
       time_request = time - base_day
+      
+      # do our writers have enough time (i.e., request at 4:59p)?
+      # letters take between 30 minutes and 2 hours to write,
+      # skip to next day if less than an hour remains
       if (time_request + 1/24 >= 17/24) {
         timeout = (1 - time_request) + 9/24
       } else{
         timeout = 0
       }
       
-      # is it a weekend? 
-      # if so, skip to Monday
+      # update
       time = time + timeout
-      base_day = as.numeric(gsub("\\..*","",simmer::now(sim)))
+      base_day = as.numeric(gsub("\\..*","",time))
       time_request = time - base_day
       
+      # is it a weekend? 
+      # if so, skip to Monday
       what_day = weekdays(datekey[Elapsed_Day == base_day]$Date)
       if (what_day == "Saturday") {
         timeout = (1 - time_request) + 1 + 9/24
@@ -137,12 +143,13 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
         timeout = 0
       }
       
-      # is it a holiday? 
-      # if so, skip to next available day
+      # update
       time = time + timeout
-      base_day = as.numeric(gsub("\\..*","",simmer::now(sim)))
+      base_day = as.numeric(gsub("\\..*","",time))
       time_request = time - base_day
       
+      # is it a holiday? 
+      # if so, skip to next available day
       what_day = datekey[Elapsed_Day == base_day]$Date
       if (what_day == as.Date("2023-01-01")) { # new years 
         timeout = (1 - time_request) + 1 + 9/24
@@ -174,8 +181,12 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
         timeout = 0
       }
       
-      # process all possible delays
+      # update
       time = time + timeout
+      base_day = as.numeric(gsub("\\..*","",time))
+      time_request = time - base_day
+      
+      # process all possible delays
       time - simmer::now(sim)
     }) %>% 
     set_attribute(c("initial_delay_end", "initial_delay_time"), function() {
@@ -232,19 +243,88 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
     timeout(function() {
       van = get_selected(sim)
       travel_time = get_attribute(sim, paste0(van, "_time"))
-
+      
+      # can our driver deliver and reset by 5p? If not skip to 9a next day
+      time = simmer::now(sim)
       base_day = as.numeric(gsub("\\..*","",simmer::now(sim)))
-      what_month = month(datekey[Elapsed_Day == base_day]$Date)
+      time_request = time - base_day
+      if (time_request + 2*travel_time/60/24 >= 19/24) {
+        timeout = 1-time_request + 9/24
+      } else {
+        timeout = 0
+      }
+      
+      # update
+      time = time + timeout
+      base_day = as.numeric(gsub("\\..*","",time))
+      time_request = time - base_day
+      
+      # is it a weekend? 
+      # if so, skip to Monday
+      what_day = weekdays(datekey[Elapsed_Day == base_day]$Date)
+      if (what_day == "Saturday") {
+        timeout = (1 - time_request) + 1 + 9/24
+      } else if (what_day == "Sunday") {
+        timeout = (1 - time_request) + 9/24
+      } else {
+        timeout = 0
+      }
+      
+      # update
+      time = time + timeout
+      base_day = as.numeric(gsub("\\..*","",time))
+      time_request = time - base_day
+      
+      # is it a holiday? 
+      # if so, skip to next available day
+      what_day = datekey[Elapsed_Day == base_day]$Date
+      if (what_day == as.Date("2023-01-01")) { # new years 
+        timeout = (1 - time_request) + 1 + 9/24
+      } else if (what_day == as.Date("2023-01-02")) { # new years (in lieu)
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-01-16")) { # MLK day
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-02-20")) { # Washington birthday
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-05-29")) { # Memorial day
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-06-19")) { # Juneteenth
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-07-04")) { # Independence day
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-09-04")) { # Labor day
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-10-09")) { # Columbus day
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-11-10")) { # Veterans' day
+        timeout = (1 - time_request) + 2 + 9/24
+      } else if (what_day == as.Date("2023-11-23")) { # Thanksgiving
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2023-12-25")) { # Christmas
+        timeout = (1 - time_request) + 9/24
+      } else if (what_day == as.Date("2024-01-01")) { # New Years
+        timeout = (1 - time_request) + 9/24
+      } else {
+        timeout = 0
+      }
+      
+      # update
+      time = time + timeout
+      base_day = as.numeric(gsub("\\..*","",time))
+      time_request = time - base_day
       
       # if in winter travel_time will always be expected, up to twice as long
       # if not, want rough bound of +/- 10%
+      what_month = month(datekey[Elapsed_Day == base_day]$Date)
       if (what_month %in% c(12,1:3)) {
-        travel_time = travel_time * runif(1, 1, 2)
+        timeout = travel_time * runif(1, 1, 2)
       } else {
-        travel_time = travel_time * rnorm(1, 1, 0.05)
+        timeout = travel_time * rnorm(1, 1, 0.05)
       }
+      time = time + timeout/60/24
       
-      travel_time/60/24
+      # process delays
+      time - simmer::now(sim)
     }) %>% 
     set_attribute(c("travel_end", "travel_time"), function() {
       c(simmer::now(sim), 
@@ -311,6 +391,10 @@ letter_sim = function(monthly_data, cluster_solutions, n_vans,
   simulation = simulation[order(letter_request)]
   simulation[, N_Clust := n_vans]
   simulation[, Method := method]
+  
+  # quick sanity check
+  # simulation[, Time_finished := travelback_end - floor(travelback_end)]
+  # View(simulation[Time_finished <= 9/24 | Time_finished >= 19/24])
   
   message(n_vans)
   return(simulation)
