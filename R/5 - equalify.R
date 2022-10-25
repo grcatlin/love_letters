@@ -9,7 +9,7 @@ set_pushover_user(user = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 set_pushover_app(token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
 # pushoverr test
-pushover("Testing!")
+# pushover("Testing!")
 
 # imports
 cens = readRDS("R_Objects/cens_cleaned.rds")
@@ -214,7 +214,7 @@ equal_cluster = rbindlist(equal_cluster)
 equal_cluster[, Method := "Equal"]
 
 # optional - push notification when finished
-pushover("Equalify has finished running!")
+# pushover("Equalify has finished running!")
 
 # bind clustering solutions and save
 cluster_dat = rbind(cluster_dat, equal_cluster)

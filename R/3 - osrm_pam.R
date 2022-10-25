@@ -38,12 +38,23 @@ test_cens = copy(cens)
 test_cens[, Clust := test_assignment]
 test_cens[, Medoid := ifelse(Clust == ID, 1, 0)]
 
-# leaflet test palette 
+# leaflet test palette preview
 test_colors = c("#FFEEB2FF", "#FFCA9EFF", "#FF8C89FF", "#756585FF", "#09A7B4FF",
            "#43D99AFF", "#8FFA85FF")
-structure((grDevices::colorRampPalette(test_colors))(length(test_colors)), 
-          class = "palette",
-          name = "leaflet palette")
+show_palette <- function(x, name) {
+  n <- length(x)
+  old <- par(mar = c(0.5, 0.5, 0.5, 0.5))
+  on.exit(par(old))
+  
+  image(1:n, 1, as.matrix(1:n), col = x,
+        ylab = "", xaxt = "n", yaxt = "n", bty = "n")
+  
+  rect(0, 0.9, n + 1, 1.1, col = rgb(1, 1, 1, 0.8), border = NA)
+  text((n + 1) / 2, 1, labels = name, cex = 1, family = "serif")
+}
+show_palette(test_colors, "leaflet palette")
+
+# leaflet test palette apply
 test_pal = colorFactor(palette = test_colors, domain = test_cens$Clust)
 test_cens[, Palette := test_pal(Clust)]
 test_cens[Medoid == 1, Palette := "#214559"]
