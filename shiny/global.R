@@ -1,6 +1,7 @@
 library(data.table)
 library(leaflet)
 library(highcharter)
+library(shiny)
 
 # import data 
 cluster = readRDS("data/cluster.rds")
@@ -15,7 +16,7 @@ colors = c("#FFEEB2FF", "#FFCA9EFF", "#FF8C89FF", "#756585FF", "#09A7B4FF",
 
 # leaflet function
 cluster_map = function(cluster_data) {
-  cluster_data[Medoid == 1, Palette := "#214559"]
+  cluster_data[Medoid == 1, Palette := "black"]
   
   # leaflet radius & opacity
   radius_function = function(pop, q) {
@@ -59,7 +60,7 @@ cluster_map = function(cluster_data) {
   
   # leaflet  
   leaflet() %>% 
-    addProviderTiles(providers$CartoDB) %>% 
+    addProviderTiles(providers$CartoDB.DarkMatter) %>% 
     setView(lat=mean(cluster_data$Lat), 
             lng=mean(cluster_data$Lon), 
             zoom = 12) %>%
@@ -78,42 +79,42 @@ cluster_map = function(cluster_data) {
                      fillOpacity = ~Opacity, 
                      color="white", 
                      radius = ~Radius, 
-                     stroke=F,
+                     stroke=T,
                      label = ~Label,
                      labelOptions = labelOptions(textsize = "13px"))
 }
 
 # highchart theme
-love_theme = function (main = "black", back = NA, pal) 
+love_theme = function (main = "white", back = NA, pal) 
 {
   theme <- hc_theme(colors = pal, 
                     chart = list(
                       backgroundColor = back,
                       style = list(
-                        fontFamily = "Inconsolata", 
+                        fontFamily = "Inconsolata",
                         color = main
                       )
-                    ), 
+                    ),
                     title = list(
-                      style = list(color = main), 
-                      align = "left"), 
+                      style = list(color = main),
+                      align = "left"),
                     subtitle = list(
-                      style = list(color = main), 
-                      align = "left"), 
+                      style = list(color = main),
+                      align = "left"),
                     legend = list(
-                      align = "right", 
-                      verticalAlign = "bottom", 
+                      align = "right",
+                      verticalAlign = "bottom",
                       itemStyle = list(
-                        fontWeight = "normal", 
+                        fontWeight = "normal",
                         color = main)
-                    ), 
+                    ),
                     xAxis = list(
-                      gridLineDashStyle = "Dot", 
-                      gridLineWidth = 1, 
-                      gridLineColor = main, 
-                      lineColor = main, 
-                      minorGridLineColor = main, 
-                      tickColor = main, 
+                      gridLineDashStyle = "Dot",
+                      gridLineWidth = 1,
+                      gridLineColor = main,
+                      lineColor = main,
+                      minorGridLineColor = main,
+                      tickColor = main,
                       tickWidth = 1,
                       labels = list(
                         style = list(
@@ -125,7 +126,7 @@ love_theme = function (main = "black", back = NA, pal)
                           color = main
                         )
                       )
-                    ), 
+                    ),
                     yAxis = list(
                       gridLineDashStyle = "Dot", 
                       gridLineColor = main, 

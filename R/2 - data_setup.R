@@ -46,9 +46,9 @@ for (month in 1:12) {
   monthly = rbind(monthly, monthdat)
 }
 
-monthly[!(MonthNo %in% c(1:2, 11:12)), Response := rpois(.N, Population/125)]
-monthly[MonthNo == 2, Response := rpois(.N, 3 * Population/125)]
-monthly[(MonthNo %in% c(1, 11:12)), Response := rpois(.N, 2 * Population/125)]
+monthly[!(MonthNo %in% c(1:2, 11:12)), Response := rpois(.N, Population/200)]
+monthly[MonthNo == 2, Response := rpois(.N, 3 * Population/200)]
+monthly[(MonthNo %in% c(1, 11:12)), Response := rpois(.N, 2 * Population/200)]
 
 # check
 monthly[, mean(Response), by = MonthNo]

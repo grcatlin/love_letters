@@ -436,4 +436,4 @@ euc_sim = rbindlist(euc_sim, fill = T)
 # save simulations
 simulation_dat = rbind(equal_sim, time_sim, euc_sim)
 saveRDS(simulation_dat, "R_Objects/simulation_dat.rds")
-pushover("All simulations completed!")
+# pushover("All simulations completed!")

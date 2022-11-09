@@ -8,19 +8,17 @@ simulation_results = readRDS("R_Objects/simulation_dat.rds")
 cluster_dat = readRDS("R_Objects/cluster_dat.rds")
 
 # subset setup
-method = "Equal"; vans = 5
+method = "Equal"; vans = 2
 sim_subset = simulation_results[Method == method & N_Clust == vans]
 
 # get distribution of wait times
-sim_subset[, wait_total := travelback_end - letter_request]
-sim_subset[, wait_adjusted := travel_end - initial_delay_end]
 sim_subset[, wait_deliver := delivery_end - write_end]
 dist_wait_minutes = sim_subset$wait_deliver * 60 * 24
 dist_wait_hours = sim_subset$wait_deliver * 60
 dist_wait_days = sim_subset$wait_deliver
 
 # workload pie chart data
-work = sim_subset[, .(.N, Wait =mean(delivery_end - write_end) * 60 * 24), 
+work = sim_subset[, .(.N, Wait =mean(wait_deliver) * 60 * 24), 
                   by = van_selected]
 work[, van_selected := paste0("Van ", van_selected)]
 work = work[order(van_selected)]
@@ -101,7 +99,7 @@ hchart(dist_wait_hours, color = colors[3]) %>%
   hc_add_theme(love_theme()) %>% 
   hc_yAxis(title = list(text = "Density")) %>%
   hc_title(text = "Wait Time Density") %>%
-  hc_subtitle(text = "Equalify for 5 Vans") %>%
+  hc_subtitle(text = "Equalify for 2 Vans") %>%
   hc_xAxis(title = list(text = "Time in Hours")) %>%
   hc_legend(enabled = F) %>% 
   hc_tooltip(enabled = F)
@@ -115,10 +113,10 @@ hchart(work,
     "# Cards Delivered: <b> {point.N} </b> <br>",
     "Average Wait: <b> {point.Wait: .2f} Minutes </b>")) %>% 
   hc_title(text = "Workload") %>%
-  hc_subtitle(text = "Equalify for 5 Vans")
+  hc_subtitle(text = "Equalify for 2 Vans")
 
 # subset 2 setup
-method = "Time"; vans = 5
+method = "Time"; vans = 2
 sim_subset2 = simulation_results[Method == method & N_Clust == vans]
 
 # get distribution of wait times
@@ -153,7 +151,7 @@ highchart() %>%
   hc_legend(enabled = T)  %>% 
   hc_add_theme(love_theme()) %>% 
   hc_title(text = "Density Comparison") %>%
-  hc_subtitle(text = "Equalify vs. Time for 5 Vans") %>% 
+  hc_subtitle(text = "Equalify vs. Time for 2 Vans") %>% 
   hc_tooltip(pointFormat = paste0(
     "Density: <b> {point.y: .2f} </b> <br>",
     "Hour: <b> {point.x} </b>"))

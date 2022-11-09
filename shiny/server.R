@@ -1,8 +1,3 @@
-library(data.table)
-library(leaflet)
-library(ggplot2)
-library(stringr)
-
 function(input, output, session) {
   
   #######################
@@ -68,14 +63,22 @@ function(input, output, session) {
     
     hchart(dat,
            type = "pie",
-           hcaes(x = van_selected, y = N)) %>%
+           hcaes(x = van_selected, y = N),
+           dataLabels = list(
+             enabled = T,
+             style = list(
+               color = "white",
+               textOutline = 0)
+           )
+           ) %>%
       hc_add_theme(love_theme(pal = palette()$Palette)) %>%
       hc_tooltip(pointFormat = paste0(
         "# Cards Delivered: <b> {point.N} </b> <br>",
         "Average Wait: <b> {point.Wait: .2f} Minutes </b>")) %>%
       hc_title(text = "Workload") %>%
       hc_subtitle(text = paste0(input$method, " Cluster for ", input$nclust, 
-                                " Vans"))
+                                " Vans")) %>% 
+      hc_plotOptions(series = list(borderColor = "#333333"))
   })
   
 
@@ -119,14 +122,21 @@ function(input, output, session) {
     
     hchart(dat,
            type = "pie",
-           hcaes(x = van_selected, y = N)) %>%
+           hcaes(x = van_selected, y = N),
+           dataLabels = list(
+             enabled = T,
+             style = list(
+               color = "white",
+               textOutline = 0)
+           )) %>%
       hc_add_theme(love_theme(pal = palette_comp()$Palette)) %>%
       hc_tooltip(pointFormat = paste0(
         "# Cards Delivered: <b> {point.N} </b> <br>",
         "Average Wait: <b> {point.Wait: .2f} Minutes </b>")) %>%
       hc_title(text = "Workload") %>%
-      hc_subtitle(text = paste0(input$m1, " Cluster for ", input$nclust, 
-                                " Vans"))
+      hc_subtitle(text = paste0(input$m1, " Cluster for ", input$nclustcomp, 
+                                " Vans")) %>% 
+      hc_plotOptions(series = list(borderColor = "#333333"))
   })
   
   output$w2 = renderHighchart({
@@ -135,14 +145,21 @@ function(input, output, session) {
     
     hchart(dat,
            type = "pie",
-           hcaes(x = van_selected, y = N)) %>%
+           hcaes(x = van_selected, y = N),
+           dataLabels = list(
+             enabled = T,
+             style = list(
+               color = "white",
+               textOutline = 0)
+           )) %>%
       hc_add_theme(love_theme(pal = palette_comp()$Palette)) %>%
       hc_tooltip(pointFormat = paste0(
         "# Cards Delivered: <b> {point.N} </b> <br>",
         "Average Wait: <b> {point.Wait: .2f} Minutes </b>")) %>%
       hc_title(text = "Workload") %>%
-      hc_subtitle(text = paste0(input$m2, " Cluster for ", input$nclust, 
-                                " Vans"))
+      hc_subtitle(text = paste0(input$m2, " Cluster for ", input$nclustcomp, 
+                                " Vans")) %>% 
+      hc_plotOptions(series = list(borderColor = "#333333"))
   })
   
   output$density_compare = renderHighchart({
@@ -157,7 +174,8 @@ function(input, output, session) {
     # distribution compare plot
     highchart() %>% 
       hc_chart(type = "bar") %>% 
-      hc_plotOptions(series = list(stacking='normal'),
+      hc_plotOptions(series = list(stacking='normal',
+                                   borderColor = "#333333"),
                      column = list(dataLabels = list(enabled = FALSE), 
                                    enableMouseTracking = TRUE)) %>% 
       hc_add_series(data = h1, name = input$m1, color = colors[5]) %>% 
@@ -192,9 +210,9 @@ function(input, output, session) {
     }
   })
 
-  ###############################################
-  # swamp # amb and county between comp and map #
-  ###############################################
+  #####################################
+  # swamp # vans between comp and map #
+  #####################################
 
   observe({
     if (input$nav == "Cluster Comparison") {

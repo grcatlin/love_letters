@@ -24,5 +24,87 @@ h1, h2, h3, h4 { font-weight: 400; }
 
 /* If not using map tiles, show a white background */
 .leaflet-container {
-  background-color: white !important;
+  background-color: black !important;
+}
+
+/* main colors used */
+:root{
+  --love-red: #ff4e4e;
+  --love-bg: #333333;
+  --love-input-bg: #000000;
+}
+
+/* navbar at top */
+.navbar-default {
+    background-color: #000000;
+}
+
+/* base navbar text color */
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav>li>a {
+    color: var(--love-red);
+}
+
+/* navbar text on hover */
+.navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover {
+  color: var(--love-red);
+}
+.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+    color: #ffffff;
+}
+
+/* selected tab bg and text */
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
+    color: var(--love-red);
+    background-color: #ff000030;
+}
+
+/* navbar border color */
+.navbar-default {
+    border-color: #00000000;
+}
+
+/* main background & text color */
+body {
+    color: #fff;
+    background-color: var(--love-bg);
+}
+
+/* map control panel background & border */
+div#controls.panel.panel-default {
+  background-color: var(--love-bg);
+  border-color: var(--love-red);
+}
+
+/* selectize input customization */
+.selectize-input.full, .selectize-input, 
+.selectize-control.single .selectize-input.input-active,
+.selectize-dropdown {
+    background-color: var(--love-input-bg);
+    color: white;
+}
+.selectize-input,  .selectize-input.focus {
+    border: 1px solid var(--love-red);
+}
+
+/* action button customization */
+.btn-default {
+    background-color: var(--love-input-bg);
+    border-color: var(--love-red);
+    color: white;
+}
+
+/* slider customization */
+.irs--shiny .irs-bar {
+    border-top: 1px solid var(--love-red);
+    border-bottom: 1px solid var(--love-red);
+    background: var(--love-red);
+}
+.irs--shiny .irs-from, .irs--shiny .irs-to, .irs--shiny .irs-single {
+    background-color: var(--love-red);
+}
+.irs--shiny .irs-line {
+    background: var(--love-input-bg);
+    background-color: var(--love-input-bg);
+    border: 1px solid var(--love-input-bg);
 }
